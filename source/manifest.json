@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+  "name": "email_grind",
+  "version": "0.1",
+  "description": "An email affirmation extension for Chrome",
+  "content_scripts": [{
+    "matches": ["https://mail.google.com/*"],
+    "js": ["javascripts/content.js"]
+  }],
+  "background": {
+    "scripts": ["javascripts/background.js"],
+    "persistent": false
+  },
+  "web_accessible_resources": [
+    "javascripts/main.js",
+    "client_id.json"
+  ],
+  "externally_connectable": {
+    "matches": ["*://*.google.com/*"]
+  }
+}
