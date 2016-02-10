@@ -1,16 +1,17 @@
-chrome.runtime.onMessageExternal.addListener (request, sender, sendResponse) ->
-  console.log "Request is:", request
+Request = require "./request"
 
+chrome.runtime.onMessageExternal.addListener (request, sender, sendResponse) ->
+  if request.type == Request.GET_CLIENT_ID_JSON
+    _get_client_id_json request.clientIdPath, (data) ->
+      sendResponse JSON.parse(data)
+    return true
+
+_get_client_id_json = (clientIdPath, callback) ->
   chrome.runtime.getPackageDirectoryEntry (root) ->
-    root.getFile "client_id.json", { create: false }, (entry) ->
+    root.getFile clientIdPath, { create: false }, (entry) ->
       entry.file (file) ->
-        console.log "entry.file"
         reader = new FileReader()
         reader.onloadend = (event) ->
-          console.log "reader.onloadend", reader.result
           data = reader.result
-          sendResponse data
+          callback data
         reader.readAsText file
-
-
-  return true

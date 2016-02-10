@@ -1,11 +1,9 @@
 {
-  "name": "email_grind",
+  "name": "email-grind",
   "version": "0.0.1",
   "description": "An email affirmation Chrome extension for Gmail",
   "main": "build/bundle.min.js",
   "dependencies": {
-    "google-auth-library": "^0.9.7",
-    "googleapis": "^2.1.7",
     "jquery": "^2.2.0"
   },
   "devDependencies": {

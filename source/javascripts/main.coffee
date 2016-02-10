@@ -1,14 +1,13 @@
-# TODO: coffeescript globals
-jQuery = window.jQuery || {}
-jQuery = require "jquery"
+jQuery = require "jquery" # TODO: Rename to "$"
+Gmail = require "gmail"
+Inbox = require "./inbox"
+
 window.jQuery = jQuery
 
-Gmail = window.gmail || {}
-Gmail = require "gmail"
-window.Gmail = Gmail
-
-# TODO: Need these?
-Inbox = require "./inbox"
+Google = {
+  Client: require "./google/client"
+  Gmail: require "./google/gmail"
+}
 
 refresh = (f) ->
   if ((/in/.test(document.readyState)) || (undefined == Gmail))
@@ -18,19 +17,22 @@ refresh = (f) ->
 
 class Client
   @run: ->
-    gmail = new Gmail()
+    console.log "App start..."
+    @_auth()
+
+  @_auth: ->
+    console.log "Now authenticating..."
+    client = new Google.Client()
+    client.startClient @_setup
+    # gmail = new Google.Gmail()
+    # gapi = new GmailApi()
+
+  @_setup: ->
+    console.log "Setting up interface..."
+    gmail = new Gmail() # TODO: Do we need this at all?
     inboxDom = gmail.dom.inboxes().first()
     $messagesDom = jQuery(inboxDom).find ".zA.yO"
-
     inbox = new Inbox $messagesDom
-
     console.log inbox.getMessages()
 
 refresh -> Client.run()
-
-# setTimeout(function() {
-#     /* Example: Send data to your Chrome extension*/
-#     document.dispatchEvent(new CustomEvent('RW759_connectExtension', {
-#         detail: GLOBALS // Some variable from Gmail.
-#     }));
-# }, 0);
