@@ -1,81 +1,51 @@
-Message = require "../message"
-Gmail = require "gmail" # TODO: Too heavy-handed...
+Auth = require "./auth"
+Gmail = require "gmail"
 
 class Client
-  EXTENSION_ID = "ogfeibakfhnfghohmkhdapepgeblocle"
-  GMAIL_SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+  @installClientJs: (callback) ->
+    @_setup_external_handlers callback
+    console.debug "-> Installing Google API client script..."
+    s = document.createElement "script"
+    s.src = "https://apis.google.com/js/client.js?onload=_eg_handle_client_load"
+    (document.head || document.documentElement).appendChild s
 
+  @_setup_external_handlers: (callback) ->
+    console.debug "-> Setting up the Google API client load handler..."
+    window._eg_handle_client_load = ->
+      Auth.authImmediateWithCallback true, callback
+    window._eg_handle_auth_result = (authResult) ->
+      AuthView.handleAuthResult authResult, callback
+    window._eg_handle_auth_click = ->
+      Auth.authImmediate false
+      return false
+
+class AuthView
   AUTH_RESULT_ERR_IMMEDIATE_FAILED = "immediate_failed"
   AUTH_RESULT_ERR_ACCESS_DENIED = "access_denied"
 
-  constructor: ->
-    console.debug "Constructed Google client..."
-    @_client_id = null
-    @_callback = null
-    @_gmail = new Gmail()
+  @displayAuth: ->
+    console.log "Displaying modal window..."
+    @_gmail_js().tools.add_modal_window "Authorize EmailGrind?",
+      "EmailGrind wants to be able to send 'like' messages!",
+      -> window._eg_handle_auth_click()
 
-  startClient: (callback) ->
-    console.debug "Starting client..."
-    @_callback = callback
-    @_get_client_id_json()
-
-  _get_client_id_json: ->
-    console.debug "Sending message...", "'#{Message.GET_CLIENT_ID_JSON}'"
-    chrome.runtime.sendMessage EXTENSION_ID, {
-      type: Message.GET_CLIENT_ID_JSON
-      clientIdPath: "client_id.json"
-    }, (json) =>
-      console.debug "=> Received JSON response from extension:", json
-      @_load_client_id_json json
-
-  _load_client_id_json: (json) ->
-    console.debug "Loading in the client_id JSON data:", json
-    @_client_id = json.web.client_id
-    @_setup_external_handlers()
-
-  _setup_external_handlers: ->
-    console.debug "Setting up the Google API client load handler..."
-    window.handleClientLoad = =>
-      console.debug "Handling loading of the Google client library..."
-      @_authorize true
-    @_install_client_js()
-
-  _handle_auth_click: ->
-    console.debug "Handling authorization click for the Google client library..."
-    @_authorize false
-    return false
-
-  _authorize: (immediate) ->
-    console.log "Authorizing with Google...", "immediate = #{immediate}"
-    gapi.auth.authorize {
-      client_id: @_client_id
-      scope: GMAIL_SCOPES.join(" ")
-      immediate: immediate
-    }, @_handle_auth_result
-
-  _handle_auth_result: (authResult) =>
-    console.debug "Handling authentication result..."
+  @handleAuthResult: (authResult, callback) ->
+    console.debug "-> Handling authentication result..."
     if authResult && !authResult.error
-      console.debug "Need to load the Gmail API..."
-      @_gmail.tools.remove_modal_window()
-      @_callback()
+      console.debug "-> Need to load the Gmail API..."
+      @_gmail_js().tools.remove_modal_window()
+      if callback then callback()
     else if authResult && authResult.error
       console.warn "There was an error authenticating:", authResult.error
       switch authResult.error
-        when AUTH_RESULT_ERR_IMMEDIATE_FAILED then @_display_auth()
-        when AUTH_RESULT_ERR_ACCESS_DENIED then @_gmail.tools.remove_modal_window()
+        when AUTH_RESULT_ERR_IMMEDIATE_FAILED then AuthView.displayAuth()
+        when AUTH_RESULT_ERR_ACCESS_DENIED then @_gmail_js().tools.remove_modal_window()
     else
       console.error "There was a problem getting the authentication result!"
 
-  _display_auth: ->
-    console.log "Displaying modal window..."
-    @_gmail.tools.add_modal_window "Authorize",
-      "Authorize access to Gmail API?", => @_handle_auth_click()
-
-  _install_client_js: ->
-    console.debug "Installing Google API client script..."
-    s = document.createElement "script"
-    s.src = "https://apis.google.com/js/client.js?onload=handleClientLoad"
-    (document.head || document.documentElement).appendChild s
+  # TODO: getter/setter
+  # TODO: https://arcturo.github.io/library/coffeescript/03_classes.html
+  @_gmail_js: ->
+    window._gmail_js ||= new Gmail()
 
 module.exports = Client

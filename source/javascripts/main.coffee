@@ -22,13 +22,14 @@ class Client
 
   @_auth: ->
     console.log "Now authenticating..."
-    client = new Google.Client()
-    client.startClient @_setup
+    Google.Client.installClientJs @_setup
 
   @_setup: ->
     console.log "Setting up interface..."
-    mapi = new Google.Gmail()
-    mapi.loadGmailApi()
+    Google.Gmail.load @_gmail_ready
+
+  @_gmail_ready: ->
+    console.log "Gmail is ready..."
     # gmail = new Gmail() # TODO: Do we need this at all?
     # inboxDom = gmail.dom.inboxes().first()
     # $messagesDom = jQuery(inboxDom).find ".zA.yO"
@@ -36,3 +37,5 @@ class Client
     # console.log inbox.getMessages()
 
 refresh -> Client.run()
+
+# TODO: Message class for Gmail API
