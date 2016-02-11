@@ -1,9 +1,12 @@
 class Gmail
   constructor: ->
-    console.debug "Constructed Gmail"
+    console.debug "Constructed Gmail API..."
 
-  # _load_gmail_api: ->
-  #   console.debug "Loading Gmail API..."
-  #   gapi.client.load "gmail", "v1", listLabels
+  loadGmailApi: ->
+    console.log "Loading Gmail API..."
+    gapi.client.load "gmail", "v1", @_list_labels
+
+  _list_labels: ->
+    console.log "Listing labels..."
 
 module.exports = Gmail

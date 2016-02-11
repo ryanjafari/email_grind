@@ -24,15 +24,15 @@ class Client
     console.log "Now authenticating..."
     client = new Google.Client()
     client.startClient @_setup
-    # gmail = new Google.Gmail()
-    # gapi = new GmailApi()
 
   @_setup: ->
     console.log "Setting up interface..."
-    gmail = new Gmail() # TODO: Do we need this at all?
-    inboxDom = gmail.dom.inboxes().first()
-    $messagesDom = jQuery(inboxDom).find ".zA.yO"
-    inbox = new Inbox $messagesDom
-    console.log inbox.getMessages()
+    mapi = new Google.Gmail()
+    mapi.loadGmailApi()
+    # gmail = new Gmail() # TODO: Do we need this at all?
+    # inboxDom = gmail.dom.inboxes().first()
+    # $messagesDom = jQuery(inboxDom).find ".zA.yO"
+    # inbox = new Inbox $messagesDom
+    # console.log inbox.getMessages()
 
 refresh -> Client.run()

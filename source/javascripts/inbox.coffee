@@ -5,8 +5,6 @@ Function::getter = (prop, get) ->
 Function::setter = (prop, set) ->
   Object.defineProperty @prototype, prop, { set, configurable: yes }
 
-GmailApi = require "./gmail_api"
-
 class Inbox
   constructor: ($messagesDom) ->
     @messages = []
