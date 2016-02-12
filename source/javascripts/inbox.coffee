@@ -5,6 +5,11 @@ Function::getter = (prop, get) ->
 Function::setter = (prop, set) ->
   Object.defineProperty @prototype, prop, { set, configurable: yes }
 
+Google = {
+  Gmail: require "./google/gmail"
+  EmailMessage: require "./google/email-message"
+}
+
 class Inbox
   constructor: ($messagesDom) ->
     @messages = []
@@ -21,8 +26,10 @@ class Inbox
 class Message
   constructor: ($messageDom) ->
     @_$dom = $messageDom
-    likeButton = new LikeButton "Like"
-    @._add_button likeButton # TODO: need .?
+    @_like_button = new LikeButton "Like"
+    # TODO: instance variables
+    @_add_button @_like_button
+    @_add_button_listener @_like_button
 
   _add_button: (button) ->
     wrapper = @_$subject_dom.children().first()
@@ -32,11 +39,20 @@ class Message
       @_$subject_dom.children().wrap wrapper
     @_$subject_dom.children().first().append button.$dom
 
+  _add_button_listener: (button) ->
+    button.$dom.on "click", =>
+      emailMessage = new Google.EmailMessage(this)
+      emailMessage.body = "I like this!"
+      Google.Gmail.sendMessage "me", emailMessage, (response) ->
+        console.log "Finished sending the email:", response
+
   @getter "_$sender_dom", -> @_$dom.find ".yX.xY"
   @getter "_$subject_dom", -> @_$dom.find ".xY.a4W"
   @getter "_$date_dom", -> @_$dom.find ".xW.xY"
 
-  @getter "sender", -> @_$sender_dom.find(".yW").children().first().text()
+  # TODO: change to yP?
+  @getter "senderName", -> @_$sender_dom.find(".yW").children().first().text()
+  @getter "senderEmail", -> @_$sender_dom.find(".yW").children().first().attr("email")
   @getter "subject", -> @_$subject_dom.find(".y6").children().first().text()
   @getter "preview", -> @_$subject_dom.find(".y2").text()
   @getter "date", -> @_$date_dom.children().first().attr "title" # TODO: Date class?
@@ -45,11 +61,6 @@ class LikeButton
   constructor: (label) ->
     @_$dom = jQuery "<a href='#'>#{label}</a>"
     @_$dom.addClass "aKS"
-    @_$dom.on "click", @_click
-
-  _click: (event) ->
-    gmailApi = new GmailApi()
-    gmailApi.handleAuthClick event
 
   @getter "$dom", -> @_$dom
 

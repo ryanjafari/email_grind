@@ -33,15 +33,22 @@ class AuthView
     console.debug "-> Handling authentication result..."
     if authResult && !authResult.error
       console.debug "-> Need to load the Gmail API..."
-      @_gmail_js().tools.remove_modal_window()
-      if callback then callback()
+      unless authResult._aa
+        @_remove_modal_and_notify "Thanks! You're all set with EmailGrind!"
+      callback()
     else if authResult && authResult.error
-      console.warn "There was an error authenticating:", authResult.error
+      console.warn "There was an *expected* error authenticating:", authResult.error
       switch authResult.error
-        when AUTH_RESULT_ERR_IMMEDIATE_FAILED then AuthView.displayAuth()
-        when AUTH_RESULT_ERR_ACCESS_DENIED then @_gmail_js().tools.remove_modal_window()
+        when AUTH_RESULT_ERR_IMMEDIATE_FAILED
+          AuthView.displayAuth()
+        when AUTH_RESULT_ERR_ACCESS_DENIED
+          @_remove_modal_and_notify "No problem. We won't bother you again this session"
     else
-      console.error "There was a problem getting the authentication result!"
+      console.error "There was an unexpected error authenticating."
+
+  @_remove_modal_and_notify: (message) ->
+    @_gmail_js().tools.remove_modal_window()
+    @_gmail_js().tools.infobox message, 10000
 
   # TODO: getter/setter
   # TODO: https://arcturo.github.io/library/coffeescript/03_classes.html

@@ -2,7 +2,12 @@ ExtensionMessage = require "../extension-message"
 
 class Auth
   EXTENSION_ID = "ogfeibakfhnfghohmkhdapepgeblocle"
-  GMAIL_SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'] # TODO: More scopes.
+  GMAIL_SCOPES = [
+    "https://mail.google.com/",
+    "https://www.googleapis.com/auth/gmail.compose",
+    "https://www.googleapis.com/auth/gmail.modify",
+    "https://www.googleapis.com/auth/gmail.send"
+  ]
 
   @authImmediate: (immediate) ->
     @authImmediateWithCallback immediate
@@ -11,7 +16,7 @@ class Auth
     @_get_client_id_json => @_authorize(immediate, callback)
 
   @_authorize: (immediate, callback) ->
-    console.log "Authorizing with Google...", "immediate = #{immediate}"
+    console.log "Authenticating with Google..."
     gapi.auth.authorize {
       client_id: @_client_id()
       scope: GMAIL_SCOPES.join(" ")

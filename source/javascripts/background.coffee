@@ -1,15 +1,18 @@
-Message = require "./message"
+ExtensionMessage = require "./extension-message"
 
 chrome.runtime.onMessageExternal.addListener (request, sender, sendResponse) ->
   switch request.type
-    when Message.GET_CLIENT_ID_JSON
-      console.debug "-> Received message from page:", "'#{Message.GET_CLIENT_ID_JSON}'"
+    when ExtensionMessage.GET_CLIENT_ID_JSON
+      console.debug "-> Received message from page:",
+        "'#{ExtensionMessage.GET_CLIENT_ID_JSON}'"
       _read_file request.clientIdPath, (object) ->
         console.debug "-> Got file:", object
         sendResponse JSON.parse(object)
       return true
-    when Message.GET_AUTH_HTML
-      console.debug "-> Received message from page:", "'#{Message.GET_AUTH_HTML}'"
+    # TODO: Get generic HTML?
+    when ExtensionMessage.GET_AUTH_HTML
+      console.debug "-> Received message from page:",
+        "'#{ExtensionMessage.GET_AUTH_HTML}'"
       _read_file request.authHtmlPath, (html) ->
         console.debug "-> Got file:", html
         sendResponse html
