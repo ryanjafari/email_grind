@@ -1,4 +1,4 @@
-ExtensionMessage = require "../extension-message"
+ExtensionMessage = require "../email-grind/extension-message"
 
 class Auth
   EXTENSION_ID = "ogfeibakfhnfghohmkhdapepgeblocle"

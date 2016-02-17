@@ -6,30 +6,44 @@ Function::setter = (prop, set) ->
   Object.defineProperty @prototype, prop, { set, configurable: yes }
 
 Google = {
-  Gmail: require "./google/gmail"
-  EmailMessage: require "./google/email-message"
+  Gmail: require "../google/gmail"
+  EmailMessage: require "../google/email-message"
 }
 
+# TODO: getters should have get or no?
+# be consistent... functions need get, getters don't...
+
 class Inbox
-  constructor: ($messagesDom) ->
-    @messages = []
-    for messageDom in $messagesDom
-      message = new Message jQuery(messageDom)
-      @_add_message message
+  constructor: ($dom) ->
+    @_messages = []
+    @_$dom = $dom
+    $messagesDom = $dom.children()
+    for $messageDom in $messagesDom
+      @addMessage $messageDom
 
-  _add_message: (message) ->
-    @messages.push message
+  addMessage: ($messageDom) ->
+    message = new Message jQuery($messageDom)
+    @_messages.push message
 
+  removeMessage: ($message) ->
+    $messageToRemove = jQuery.grep @_messages, (e) -> e.id == $message.id
+    indexOfMessageToRemove = @_messages.indexOf $messageToRemove
+    @_messages.splice indexOfMessageToRemove, 1
+
+  # TODO: getter
   getMessages: ->
-    @messages
+    @_messages
+
+  @getter "$dom", -> @_$dom
 
 class Message
   constructor: ($messageDom) ->
+    @_id = $messageDom.attr "id"
     @_$dom = $messageDom
-    @_like_button = new LikeButton "Like"
-    # TODO: instance variables
-    @_add_button @_like_button
-    @_add_button_listener @_like_button
+
+    likeButton = new LikeButton "Like"
+    @_add_button likeButton
+    @_add_button_listener likeButton
 
   _add_button: (button) ->
     wrapper = @_$subject_dom.children().first()
@@ -51,6 +65,7 @@ class Message
   @getter "_$date_dom", -> @_$dom.find ".xW.xY"
 
   # TODO: change to yP?
+  @getter "id", -> @_id
   @getter "senderName", -> @_$sender_dom.find(".yW").children().first().text()
   @getter "senderEmail", -> @_$sender_dom.find(".yW").children().first().attr("email")
   @getter "subject", -> @_$subject_dom.find(".y6").children().first().text()

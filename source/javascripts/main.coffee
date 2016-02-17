@@ -1,8 +1,9 @@
 jQuery = require "jquery" # TODO: Rename to "$"
 Gmail = require "gmail" # TODO: Rename to Gmailjs
-Inbox = require "./inbox"
+Inbox = require "./email-grind/inbox"
+EmailObserver = require "./email-grind/email-observer"
 
-window.jQuery = jQuery
+window.jQuery = jQuery # TODO: Rename to "$"
 
 Google = {
   Client: require "./google/client"
@@ -18,29 +19,48 @@ refresh = (f) ->
 class EmailGrind
   @run: ->
     console.log "App start..."
-    @_auth()
+    @_auth_with_google()
 
-  @_auth: ->
+  @_auth_with_google: ->
     console.log "Now authenticating..."
-    Google.Client.installClientJs @_setup
+    Google.Client.installClientJs @_setup_gmail_api
 
-  @_setup: =>
+  @_setup_gmail_api: =>
     console.debug "-> Finished client auth, starting Gmail API load..."
-    Google.Gmail.load @_gmail_ready
+    Google.Gmail.load @_gmail_api_ready
 
-  @_gmail_ready: ->
-    console.log "Gmail is ready, so setting up interface..."
+  @_gmail_api_ready: =>
+    console.log "Gmail API is ready, so setting up interface..."
     gmail = new Gmail()
-    inboxDom = gmail.dom.inboxes().first()
-    $messagesDom = jQuery(inboxDom).find ".zA.yO"
-    inbox = new Inbox $messagesDom
-    console.log "Generated DOM messages:", inbox.getMessages()
+    gmail.observe.on "load", => @_gmail_js_ready(gmail)
+
+  @_gmail_js_ready: (gmail) ->
+    console.debug "-> The Gmail interface has finished loading..."
+    $inboxDom = gmail.dom.inboxes().first()
+    $inboxTableBodyDom = $inboxDom.find ".F.cf.zt > tbody"
+    inbox = @_build_initial_inbox $inboxTableBodyDom
+    @_watch_for_inbox_changes inbox
 
     # TODO: Rig each DOM message with its appropriate data from the server...
     # gmail.get.visible_emails(async)
     # gmail.get.email_data_async(email_id=undefined, callback)
     # gmail.get.email_source_async(email_id=undefined, callback)
 
-refresh -> EmailGrind.run()
+  @_build_initial_inbox: ($dom) ->
+    console.debug "-> Building our initial representation of the inbox..."
+    inbox = new Inbox $dom
+    console.log "Generated DOM messages:", inbox.getMessages()
+    return inbox
 
-# TODO: Message class for Gmail API
+  @_watch_for_inbox_changes: (inbox) ->
+    console.debug "-> Watching for changes on inbox:", inbox
+    emailObserver = new EmailObserver inbox
+    emailObserver.on "messageAdded", ($message) ->
+      console.debug "-> Added message:", $message
+      inbox.addMessage $message
+    emailObserver.on "messageRemoved", ($message) ->
+      console.debug "-> Removed message:", $message
+      inbox.removeMessage $message
+    emailObserver.watch()
+
+refresh -> EmailGrind.run()
