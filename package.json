@@ -4,7 +4,8 @@
   "description": "An email affirmation Chrome extension for Gmail",
   "main": "build/bundle.min.js",
   "dependencies": {
-    "jquery": "^2.2.0"
+    "jquery": "^2.2.0",
+    "urlsafe-base64": "^1.0.0"
   },
   "devDependencies": {
     "bower": "^1.7.2",
@@ -47,9 +48,11 @@
     ]
   },
   "browser": {
-    "gmail": "./vendor/gmail.js"
+    "gmail": "./vendor/gmail.js",
+    "base64": "./vendor/base64.js"
   },
   "browserify-shim": {
-    "gmail": "Gmail"
+    "gmail": "Gmail",
+    "base64": "base64"
   }
 }

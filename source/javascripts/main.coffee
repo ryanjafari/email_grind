@@ -36,22 +36,29 @@ class EmailGrind
 
   @_gmail_js_ready: (gmail) ->
     console.debug "-> The Gmail interface has finished loading..."
-    $inboxDom = gmail.dom.inboxes().first()
-    $inboxTableBodyDom = $inboxDom.find ".F.cf.zt > tbody"
-    inbox = @_build_initial_inbox $inboxTableBodyDom
-    @_watch_for_inbox_changes inbox
+
+    serverMessages = gmail.get.visible_emails()
+    primaryMessages = jQuery.grep serverMessages, (s) ->
+      "^smartlabel_social" not in s.labels &&
+      "^smartlabel_promo" not in s.labels
+
+    $inboxDom = gmail.dom.inboxes().first().find ".F.cf.zt > tbody"
+
+    inbox = @_build_initial_inbox primaryMessages, $inboxDom
+    # @_watch_for_inbox_changes inbox
 
     # TODO: Rig each DOM message with its appropriate data from the server...
     # gmail.get.visible_emails(async)
     # gmail.get.email_data_async(email_id=undefined, callback)
     # gmail.get.email_source_async(email_id=undefined, callback)
 
-  @_build_initial_inbox: ($dom) ->
+  @_build_initial_inbox: (serverMessages, $inboxDom) ->
     console.debug "-> Building our initial representation of the inbox..."
-    inbox = new Inbox $dom
+    inbox = new Inbox serverMessages, $inboxDom
     console.log "Generated DOM messages:", inbox.getMessages()
     return inbox
 
+  # TODO: observer.disconnect when not using it anymore...
   @_watch_for_inbox_changes: (inbox) ->
     console.debug "-> Watching for changes on inbox:", inbox
     emailObserver = new EmailObserver inbox
