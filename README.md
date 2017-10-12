@@ -7,9 +7,9 @@ PRs welcome; not being actively maintained.
 ## What is this?
 Hey! Thanks for asking! This is a Chrome extension for Gmail that simply appends a few buttons to the right of subject lines in the Gmail inbox, enabling quick replies. Surely you must know those times where you just want to quickly respond to an email, especially when you can see the message body preview, and someone says something like: "See you then!" and you just want to be like: "Thanks!" Imagine if there were buttons like:
 
-- ✅ Thanks!
-- 👍 Like.
-- 😊 Smile
+- :white_check_mark: Thanks!
+- :thumbsup: Like.
+- :smile: Smile
 
 ...right inline in the message inbox without even having to drill down into the individual message! Inbox zero here we come, right?!
 
