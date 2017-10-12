@@ -31,4 +31,4 @@ It was a labor of love. The idea was pitched to me by a few business buddies of 
 There are debug statements and commented out code snippets in these commits. I am very sorry.
 
 ## Up next
-I stopped right at the point of actually sending the emails, so in theory that's all that needs to be done to get this going. Gmail's API seems to be very particular about the email being just right before allowing you to send it. I was fussing with it a bunch.
+I stopped right at the point of actually sending the emails, so in theory that's all that needs to be done to get this going. Gmail's API seems to be very particular about the email being just right before allowing you to send it (mail headers, for example). I was fussing with it a bunch.
