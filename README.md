@@ -1,5 +1,5 @@
 # email_grind
-Chrome extension for affirming Gmail emails
+Chrome extension for quick replying to Gmail emails
 
 ## Status
 PRs welcome; not being actively maintained.
