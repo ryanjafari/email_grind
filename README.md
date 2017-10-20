@@ -1,7 +1,7 @@
 # email_grind
 Chrome extension for quick replying to Gmail emails
 
-## Status
+## Status :vertical_traffic_light:
 PRs welcome; not being actively maintained.
 
 ## What is this?
